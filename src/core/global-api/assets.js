@@ -31,7 +31,7 @@ export function initAssetRegisters (Vue: GlobalAPI) {
         if (type === 'directive' && typeof definition === 'function') { // Vue.directive()  第二个参数支持传入 function
           definition = { bind: definition, update: definition }
         }
-        this[type + 's'][id] = definition
+        this.options[type + 's'][id] = definition
         return definition
       }
     }
