@@ -29,6 +29,8 @@ export default class Dep {
   }
 
   depend () {
+    // dep.depend 方法除了在属性的 get 拦截器函数内被调用之外还在其他地方被调用了
+    // 需要对 Dep.target 做判断
     if (Dep.target) {
       Dep.target.addDep(this)
     }
@@ -52,7 +54,11 @@ export default class Dep {
 // The current target watcher being evaluated.
 // This is globally unique because only one watcher
 // can be evaluated at a time.
+// Dep.target 用来存储目前正在使用的 watcher
+// 全局唯一, 并且一次也只能有一个 watcher 被使用
 Dep.target = null
+// 每一个组件对应一个 watcher 对象, 如果有子组件, 后代组件
+// 把 watcher 存入 targetStack 优先子组件执行
 const targetStack = []
 
 export function pushTarget (target: ?Watcher) {

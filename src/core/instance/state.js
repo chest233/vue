@@ -35,7 +35,11 @@ const sharedPropertyDefinition = {
   get: noop,
   set: noop
 }
-
+/**
+ * Object: vm
+ * sourceKey: props, _data 等
+ * key: msg, list 等这些 data 中的字段
+ * */
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]
@@ -43,6 +47,9 @@ export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.set = function proxySetter (val) {
     this[sourceKey][key] = val
   }
+  // 在实例对象 vm 上定义与 data 数据字段同名的访问器属性
+  // 并且这些属性代理的值是 vm._data 上对应属性的值
+  // 比如 访问 vm.msg 实际访问的是 vm._data.msg
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
@@ -54,6 +61,7 @@ export function initState (vm: Component) {
   if (opts.data) {
     initData(vm)
   } else {
+    // $data 是一个访问器属性, 其代理值就是 _data
     observe(vm._data = {}, true /* asRootData */)
   }
   if (opts.computed) initComputed(vm, opts.computed)
@@ -112,6 +120,9 @@ function initProps (vm: Component, propsOptions: Object) {
 
 function initData (vm: Component) {
   let data = vm.$options.data
+  // beforeCreate 生命周期钩子函数是在 mergeOptions 函数之后 initData 之前被调用的
+  // 如果在 beforeCreate 生命周期钩子函数中修改了 vm.$options.data 的值
+  // 那么在 initData 函数中对于 vm.$options.data 类型的判断就是必要的了
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -154,9 +165,9 @@ function initData (vm: Component) {
 
 export function getData (data: Function, vm: Component): any {
   // #7573 disable dep collection when invoking data getters
-  pushTarget()
+  pushTarget() // 防止使用 props 数据初始化 data 数据时收集冗余的依赖
   try {
-    return data.call(vm, vm)
+    return data.call(vm, vm) // 检测 data 选项中是否有语法错误 (因为 data 是一个 function)
   } catch (e) {
     handleError(e, vm, `data()`)
     return {}

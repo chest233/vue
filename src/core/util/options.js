@@ -4,24 +4,14 @@ import config from '../config'
 import { warn } from './debug'
 import { set } from '../observer/index'
 import { unicodeRegExp } from './lang'
-import { nativeWatch, hasSymbol } from './env'
+import { hasSymbol, nativeWatch } from './env'
 
-import {
-  ASSET_TYPES,
-  LIFECYCLE_HOOKS
-} from 'shared/constants'
+import { ASSET_TYPES, LIFECYCLE_HOOKS } from 'shared/constants'
 
-import {
-  extend,
-  hasOwn,
-  camelize,
-  toRawType,
-  capitalize,
-  isBuiltInTag,
-  isPlainObject
-} from 'shared/util'
+import { camelize, capitalize, extend, hasOwn, isBuiltInTag, isPlainObject, toRawType } from 'shared/util'
 
 /**
+ * 选项覆盖策略是处理如何将父选项值和子选项值合并到最终值的函数
  * Option overwriting strategies are functions that handle
  * how to merge a parent option value and a child option
  * value into the final value.
@@ -33,6 +23,7 @@ const strats = config.optionMergeStrategies
  */
 if (process.env.NODE_ENV !== 'production') {
   strats.el = strats.propsData = function (parent, child, vm, key) {
+    // el 选项或者 propsData 选项只能在使用 new 操作符创建实例的时候可用
     if (!vm) {
       warn(
         `option "${key}" can only be used during instance ` +
@@ -145,7 +136,7 @@ strats.data = function (
  */
 function mergeHook (
   parentVal: ?Array<Function>,
-  childVal: ?Function | ?Array<Function>
+  childVal: ?Function | ?Array<Function>  //  说明 生命周期可以传数组的 created: [fn1, fn2, fn3] ,只是文档里没有写
 ): ?Array<Function> {
   const res = childVal
     ? parentVal
@@ -332,6 +323,14 @@ function normalizeProps (options: Object, vm: ?Component) {
 /**
  * Normalize all injections into Object-based format
  */
+/**
+ * ['provideData1', 'provideData2'] ===> ↓↓↓
+ * {'provideData1': { from: 'provideData1' },'provideData2': { from: 'provideData2' }}
+ *
+ * inject: { data1, d2: 'data2' ,data3: { someProperty: 'someValue' }} ===> ↓↓↓
+ * { data1: {from: data1}, d2: {from: 'data2'} ,data3: {from: 'data3}, someProperty: 'someValue' }
+ *
+ * */
 function normalizeInject (options: Object, vm: ?Component) {
   const inject = options.inject
   if (!inject) return
@@ -359,6 +358,7 @@ function normalizeInject (options: Object, vm: ?Component) {
 /**
  * Normalize raw function directives into object format.
  */
+// 如果 directive 参数是一function 自动绑定 bind ,update
 function normalizeDirectives (options: Object) {
   const dirs = options.directives
   if (dirs) {
@@ -385,6 +385,11 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
  */
+/**
+ * 实例化和继承的核心程序
+ * 目前所知, new Vue() new subVue(), Vue.extend() 时会调用
+ * Vue.extend 调用不传第三个参数 vm
+ * */
 export function mergeOptions (
   parent: Object,
   child: Object,
@@ -393,19 +398,24 @@ export function mergeOptions (
   if (process.env.NODE_ENV !== 'production') {
     checkComponents(child)
   }
-
+  /**
+   * new Vue() 或者 new SubVue() 等参数 允许是一个 function
+   * 什么情况下会是一个 function 呢
+   * 通过 Vue.extend() 创建出来的子类构造函数(构造器)
+   */
   if (typeof child === 'function') {
     child = child.options
   }
 
-  normalizeProps(child, vm)
-  normalizeInject(child, vm)
-  normalizeDirectives(child)
+  normalizeProps(child, vm)   // 规范化 props
+  normalizeInject(child, vm)  // 规范化 inject
+  normalizeDirectives(child)  // 规范化 directives
 
   // Apply extends and mixins on the child options,
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  // Vue
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
@@ -419,11 +429,11 @@ export function mergeOptions (
 
   const options = {}
   let key
-  for (key in parent) {
+  for (key in parent) {   // key 大概可能是 components directives filters _base
     mergeField(key)
   }
   for (key in child) {
-    if (!hasOwn(parent, key)) {
+    if (!hasOwn(parent, key)) { // 如果 child 的 key, parent 没有, 处理这些 key
       mergeField(key)
     }
   }

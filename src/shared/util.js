@@ -45,6 +45,12 @@ export function isObject (obj: mixed): boolean %checks {
 /**
  * Get the raw type string of a value, e.g., [object Object].
  */
+/**
+ * 不直接调用 xxx.toString()
+ * 1. xxx 有可能通过 Object.create(null) 创建, 原型是 null
+ * 2. 有可能 xxx 原型链较近一层重写了 toString 方法 (比如 Array 就重写了 toString)
+ * exp. [].tostring() ===> '' , Object.prototype.toString.call([]) ===> [object Array]
+ */
 const _toString = Object.prototype.toString
 
 export function toRawType (value: any): string {

@@ -17,7 +17,7 @@ export function initMixin (Vue: Class<Component>) {
     const vm: Component = this
     // a uid
     vm._uid = uid++
-
+    // 开发环境下的性能检测
     let startTag, endTag
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -27,7 +27,7 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // a flag to avoid this being observed
-    vm._isVue = true
+    vm._isVue = true // 标识是 vue 的实例, 将来不需要用 observe 做响应式处理
     // merge options
     if (options && options._isComponent) {
       // optimize internal component instantiation
@@ -35,13 +35,17 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
-      vm.$options = mergeOptions(
+      vm.$options = mergeOptions( // 非常关键的一步
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
       )
     }
     /* istanbul ignore else */
+    /**
+     * 开发环境给$options 添加了 _renderProxy 属性
+     * 设置渲染函数的作用域代理,其目的是为我们提供更好的提示信息
+     * */
     if (process.env.NODE_ENV !== 'production') {
       initProxy(vm)
     } else {
@@ -89,7 +93,13 @@ export function initInternalComponent (vm: Component, options: InternalComponent
     opts.staticRenderFns = options.staticRenderFns
   }
 }
-
+/**
+ * 解析构造者的 options
+ * 构造者 Ctor 不一定是 Vue 哦
+ * 如果通过 const Sub = Vue.extend()
+ * const vm = new Sub() , 此时 vm 的构造函数就是 Sub
+ * */
+// resolveConstructorOptions(vm.constructor)
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
   if (Ctor.super) {

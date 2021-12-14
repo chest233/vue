@@ -31,13 +31,18 @@ export function setActiveInstance(vm: Component) {
 
 export function initLifecycle (vm: Component) {
   const options = vm.$options
-
   // locate first non-abstract parent
   let parent = options.parent
+  // 如果当前实例有父组件，且当前实例不是抽象的
   if (parent && !options.abstract) {
+    // 使用 while 循环查找第一个非抽象的父组件
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+    /**
+     * 经过上面的 while 循环后，parent 应该是一个非抽象的组件，
+     * 将它作为当前实例的父级，所以将当前实例 vm 添加到父级的 $children 属性里
+     */
     parent.$children.push(vm)
   }
 
@@ -137,7 +142,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
   }
 }
-
+// 真正去挂载组件的函数
 export function mountComponent (
   vm: Component,
   el: ?Element,
@@ -168,6 +173,7 @@ export function mountComponent (
 
   let updateComponent
   /* istanbul ignore if */
+  /* https://github.com/gotwarlost/istanbul 做一些性能统计*/
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
     updateComponent = () => {
       const name = vm._name
@@ -194,6 +200,7 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // 我们给 vm 上设置 _watcher 属性
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted && !vm._isDestroyed) {

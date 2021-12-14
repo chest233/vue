@@ -15,9 +15,10 @@ const idToTemplate = cached(id => {
 })
 
 const mount = Vue.prototype.$mount
+// render > template > el
 Vue.prototype.$mount = function (
   el?: string | Element,
-  hydrating?: boolean
+  hydrating?: boolean // ssr: true, not ssr: false
 ): Component {
   el = el && query(el)
 
@@ -31,6 +32,7 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+  // render 比 template 优先级更高
   if (!options.render) {
     let template = options.template
     if (template) {

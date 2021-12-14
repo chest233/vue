@@ -20,6 +20,7 @@ export function initExtend (Vue: GlobalAPI) {
     extendOptions = extendOptions || {}
     const Super = this
     const SuperId = Super.cid
+    // 缓存池, 如果是通过同一个 extendOptions 创建的子类 使用缓存
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
     if (cachedCtors[SuperId]) {
       return cachedCtors[SuperId]
@@ -36,7 +37,7 @@ export function initExtend (Vue: GlobalAPI) {
     Sub.prototype = Object.create(Super.prototype)
     Sub.prototype.constructor = Sub
     Sub.cid = cid++
-    Sub.options = mergeOptions(
+    Sub.options = mergeOptions( // Vue.extend 创建的子类,没传 vm, (new Vue() 的时调用this._init中调用 mergeOptions 传了 vm),  没传第三个参数 vm,
       Super.options,
       extendOptions
     )
