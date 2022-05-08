@@ -58,7 +58,7 @@ const patternTypes: Array<Function> = [String, RegExp, Array]
 
 export default {
   name: 'keep-alive',
-  abstract: true,
+  abstract: true, // 抽象组件，只对包裹的子组件做处理，并不会和子组件建立父子关系，也不会作为节点渲染到页面上。在组件开头就设置 abstract 为 true，代表该组件是一个抽象组件。
 
   props: {
     include: patternTypes,
@@ -127,7 +127,7 @@ export default {
       ) {
         return vnode
       }
-
+      // 开始缓存逻辑
       const { cache, keys } = this
       const key: ?string = vnode.key == null
         // same constructor may get registered as different local components

@@ -31,7 +31,7 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // a flag to avoid this being observed
-    vm._isVue = true // 标识是 vue 的实例, 将来不需要用 observe 做响应式处理
+    vm._isVue = true // 标识是 vue 的实例, 将来不需要用 observe 做响应式处理(我不是普通对象, 我是Vue的实例)
     // merge options
     if (options && options._isComponent) {
       // optimize internal component instantiation
