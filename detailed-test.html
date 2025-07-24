@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>详细的Script执行顺序测试</title>
+</head>
+<body>
+    <h1>Script执行顺序测试</h1>
+    
+    <script>
+        console.log('=== 第一个script标签开始执行 ===');
+        console.log('当前script标签数量:', document.getElementsByTagName('script').length);
+        console.log('document.readyState:', document.readyState);
+        
+        // 检查特定位置的元素是否存在
+        console.log('h2元素是否存在:', !!document.querySelector('h2'));
+        console.log('第二个script是否存在:', document.getElementsByTagName('script').length > 1);
+    </script>
+    
+    <h2>这是第二个标题</h2>
+    
+    <script>
+        console.log('=== 第二个script标签开始执行 ===');
+        console.log('当前script标签数量:', document.getElementsByTagName('script').length);
+        console.log('h2元素是否存在:', !!document.querySelector('h2'));
+        console.log('h3元素是否存在:', !!document.querySelector('h3'));
+    </script>
+    
+    <h3>这是第三个标题</h3>
+    
+    <script>
+        console.log('=== 第三个script标签开始执行 ===');
+        console.log('当前script标签数量:', document.getElementsByTagName('script').length);
+        console.log('h3元素是否存在:', !!document.querySelector('h3'));
+    </script>
+</body>
+</html>
