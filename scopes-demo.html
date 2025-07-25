@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome DevTools [[Scopes]] 作用域类型演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .output {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chrome DevTools [[Scopes]] 作用域类型演示</h1>
+    
+    <div class="info-box">
+        <h3>📝 说明</h3>
+        <p>在 Chrome 浏览器控制台中，函数的 <code>[[Scopes]]</code> 属性显示了该函数可以访问的所有作用域。</p>
+        <p>主要的作用域类型包括：<strong>Script</strong>、<strong>Block</strong>、<strong>Closure</strong>、<strong>Local</strong> 和 <strong>Global</strong>。</p>
+        <p>请按 <code>F12</code> 打开开发者工具，然后点击下面的按钮来查看不同的作用域示例。</p>
+    </div>
+    
+    <div class="demo-section">
+        <h2>1. Script 作用域</h2>
+        <p>Script 作用域包含在模块或脚本文件顶层使用 <code>let</code>/<code>const</code> 声明的变量。</p>
+        <button onclick="demoScriptScope()">演示 Script 作用域</button>
+        <button onclick="viewScriptScopeFunction()">查看函数的 [[Scopes]]</button>
+        <div id="script-output" class="output"></div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>2. Block 作用域</h2>
+        <p>Block 作用域由花括号 <code>{}</code> 创建，配合 <code>let</code>/<code>const</code> 使用。</p>
+        <button onclick="demoBlockScope()">演示 Block 作用域</button>
+        <div id="block-output" class="output"></div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>3. Closure 闭包作用域</h2>
+        <p>当内部函数引用外部函数的变量时，会创建闭包作用域。</p>
+        <button onclick="demoClosureScope()">创建闭包</button>
+        <button onclick="viewClosureFunction()">查看闭包函数</button>
+        <div id="closure-output" class="output"></div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>4. 综合示例</h2>
+        <p>这个示例展示了多个作用域类型如何嵌套。</p>
+        <button onclick="demoComplexScope()">运行综合示例</button>
+        <button onclick="viewComplexFunction()">查看复杂函数的作用域链</button>
+        <div id="complex-output" class="output"></div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>5. 实用技巧</h2>
+        <h3>查看函数作用域的方法：</h3>
+        <ol>
+            <li>使用 <code>console.dir(函数名)</code> 查看函数对象，展开 <code>[[Scopes]]</code> 属性</li>
+            <li>在函数中设置 <code>debugger</code> 断点，在 Sources 面板查看 Scope 窗格</li>
+            <li>使用 Chrome DevTools 的 "Pause on exceptions" 功能</li>
+        </ol>
+        <button onclick="showInspectionTips()">显示检查技巧</button>
+        <div id="tips-output" class="output"></div>
+    </div>
+    
+    <script src="javascript-scopes-explanation.js"></script>
+    <script>
+        // 用于页面演示的辅助函数
+        
+        function demoScriptScope() {
+            const output = document.getElementById('script-output');
+            output.textContent = `Script 作用域演示：
+
+// 在脚本顶层声明的变量
+const scriptVariable = '${scriptVariable}';
+let anotherScriptVar = ${anotherScriptVar};
+
+这些变量存在于 Script 作用域中，不会污染全局 window 对象。
+打开控制台，运行 console.dir(showScriptScope) 查看函数的 [[Scopes]]`;
+            
+            showScriptScope();
+        }
+        
+        function viewScriptScopeFunction() {
+            console.log('正在查看 showScriptScope 函数的作用域...');
+            console.dir(showScriptScope);
+            alert('请查看控制台，展开函数对象的 [[Scopes]] 属性');
+        }
+        
+        function demoBlockScope() {
+            const output = document.getElementById('block-output');
+            output.textContent = 'Block 作用域演示正在运行...\n请查看控制台和 Sources 面板';
+            demonstrateBlockScope();
+        }
+        
+        let savedClosureFunc = null;
+        
+        function demoClosureScope() {
+            savedClosureFunc = createClosure();
+            const output = document.getElementById('closure-output');
+            output.textContent = '已创建闭包函数！\n点击"查看闭包函数"按钮来检查它的作用域';
+            savedClosureFunc();
+        }
+        
+        function viewClosureFunction() {
+            if (savedClosureFunc) {
+                console.log('正在查看闭包函数的作用域...');
+                console.dir(savedClosureFunc);
+                alert('请查看控制台，注意 [[Scopes]] 中的 Closure 作用域');
+            } else {
+                alert('请先点击"创建闭包"按钮');
+            }
+        }
+        
+        let savedComplexFunc = null;
+        
+        function demoComplexScope() {
+            savedComplexFunc = complexExample();
+            const output = document.getElementById('complex-output');
+            output.textContent = '已创建包含多层作用域的函数！\n运行它会在 debugger 处暂停';
+            savedComplexFunc('测试参数');
+        }
+        
+        function viewComplexFunction() {
+            if (savedComplexFunc) {
+                console.log('正在查看复杂函数的作用域链...');
+                console.dir(savedComplexFunc);
+                console.log(`
+这个函数的 [[Scopes]] 包含：
+- Script: 脚本级变量
+- Closure: 捕获的外部函数变量
+- Block: 块级作用域变量
+- Global: 全局变量
+
+在函数执行时还会有：
+- Local: 函数参数和局部变量
+`);
+            } else {
+                alert('请先运行综合示例');
+            }
+        }
+        
+        function showInspectionTips() {
+            const output = document.getElementById('tips-output');
+            output.textContent = `作用域检查技巧：
+
+1. 使用 console.dir() 静态查看：
+   console.dir(myFunction)
+   // 展开 [[Scopes]] 属性
+
+2. 使用 debugger 动态查看：
+   function myFunction() {
+       debugger; // 在这里暂停
+       // 查看 Sources 面板的 Scope 窗格
+   }
+
+3. 作用域类型解释：
+   - Script: 模块/脚本顶层的 let/const 变量
+   - Block: {} 块内的 let/const 变量
+   - Closure: 被内部函数引用的外部变量
+   - Local: 函数执行时的参数和局部变量
+   - Global: window 对象上的全局变量
+
+4. 作用域链查找顺序：
+   Local → Block → Closure → Script → Global`;
+        }
+        
+        // 页面加载时显示提示
+        window.onload = function() {
+            console.log('%c欢迎使用作用域演示！', 'color: blue; font-size: 16px; font-weight: bold;');
+            console.log('点击页面上的按钮来查看不同类型的作用域');
+            console.log('提示：使用 console.dir() 查看函数的 [[Scopes]] 属性');
+        };
+    </script>
+</body>
+</html>
